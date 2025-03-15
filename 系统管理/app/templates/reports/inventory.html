@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}库存报表 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}库存报表{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">库存统计</h6>
+        <div>
+            <a href="{{ url_for('product.index') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-box"></i> 产品管理
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">产品总数</h5>
+                        <h2 class="mb-0">{{ stats.total_products }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">库存总量</h5>
+                        <h2 class="mb-0">{{ stats.total_stock }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">库存预警</h5>
+                        <h2 class="mb-0">{{ stats.low_stock }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">缺货产品</h5>
+                        <h2 class="mb-0">{{ stats.out_of_stock }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">库存状态</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>产品名称</th>
+                                <th>类别</th>
+                                <th>当前库存</th>
+                                <th>库存预警</th>
+                                <th>状态</th>
+                                <th>最近销售</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>{{ product.id }}</td>
+                                <td>{{ product.name }}</td>
+                                <td>{{ product.category }}</td>
+                                <td>{{ product.stock }}</td>
+                                <td>{{ product.stock_alert }}</td>
+                                <td>
+                                    {% if product.stock == 0 %}
+                                    <span class="badge bg-danger">缺货</span>
+                                    {% elif product.stock <= product.stock_alert %}
+                                    <span class="badge bg-warning">库存低</span>
+                                    {% else %}
+                                    <span class="badge bg-success">正常</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ product.last_sale.strftime('%Y-%m-%d') if product.last_sale else '无' }}</td>
+                                <td>
+                                    <a href="{{ url_for('product.view', id=product.id) }}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">暂无产品</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">销售趋势</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salesTrendChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">库存分布</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="stockDistributionChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#inventoryTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+            },
+            order: [[3, 'asc']]
+        });
+    });
+    
+    // 销售趋势图表
+    var salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+    var salesTrendChart = new Chart(salesTrendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ sales_trend.labels|tojson }},
+            datasets: [{
+                label: '销售数量',
+                data: {{ sales_trend.quantities|tojson }},
+                backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 2,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '销售数量'
+                    }
+                }
+            }
+        }
+    });
+    
+    // 库存分布图表
+    var stockDistributionCtx = document.getElementById('stockDistributionChart').getContext('2d');
+    var stockDistributionChart = new Chart(stockDistributionCtx, {
+        type: 'pie',
+        data: {
+            labels: ['正常', '库存低', '缺货'],
+            datasets: [{
+                data: [
+                    {{ stock_distribution.normal }},
+                    {{ stock_distribution.low }},
+                    {{ stock_distribution.out }}
+                ],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(220, 53, 69, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

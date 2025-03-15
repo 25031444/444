@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}产品管理 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}产品管理{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">产品列表</h6>
+        <div>
+            <a href="{{ url_for('product.prices') }}" class="btn btn-warning btn-sm me-2">
+                <i class="fas fa-tags"></i> 会员价格
+            </a>
+            <a href="{{ url_for('product.add') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> 添加产品
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="productsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名称</th>
+                        <th>基础价格</th>
+                        <th>成本</th>
+                        <th>库存</th>
+                        <th>提成比例</th>
+                        <th>外卖</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>¥{{ product.base_price }}</td>
+                        <td>¥{{ product.cost or '-' }}</td>
+                        <td>{{ product.stock or '-' }}</td>
+                        <td>{{ product.commission_rate }}%</td>
+                        <td>
+                            {% if product.is_delivery %}
+                            <span class="badge bg-success">支持</span>
+                            {% else %}
+                            <span class="badge bg-secondary">不支持</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.is_active %}
+                            <span class="badge bg-success">启用</span>
+                            {% else %}
+                            <span class="badge bg-danger">禁用</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('product.view', id=product.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('product.edit', id=product.id) }}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">暂无产品</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#productsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+            },
+            order: [[0, 'desc']]
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - 头疗SPA管理系统{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="member_id" class="form-label">{{ form.member_id.label }}</label>
+                            {{ form.member_id(class="form-select", id="member_id") }}
+                            {% for error in form.member_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">{{ form.status.label }}</label>
+                            {{ form.status(class="form-select", id="status") }}
+                            {% for error in form.status.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">{{ form.address.label }}</label>
+                        {{ form.address(class="form-control", id="address") }}
+                        {% for error in form.address.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">{{ form.phone.label }}</label>
+                            {{ form.phone(class="form-control", id="phone") }}
+                            {% for error in form.phone.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="delivery_fee" class="form-label">{{ form.delivery_fee.label }}</label>
+                            {{ form.delivery_fee(class="form-control", id="delivery_fee") }}
+                            {% for error in form.delivery_fee.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">订单项目</h5>
+                    <div id="items-container">
+                        {% for item_form in form.items %}
+                        <div class="item-row card mb-3">
+                            <div class="card-body">
+                                {{ item_form.hidden_tag() }}
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">商品类型</label>
+                                        <select class="form-select item-type">
+                                            <option value="">请选择类型</option>
+                                            <option value="service">服务</option>
+                                            <option value="product">产品</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ item_form.item_id.label }}</label>
+                                        {{ item_form.item_id(class="form-select item-id", disabled=true) }}
+                                        {% for error in item_form.item_id.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">{{ item_form.price.label }}</label>
+                                        {{ item_form.price(class="form-control item-price") }}
+                                        {% for error in item_form.price.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">{{ item_form.quantity.label }}</label>
+                                        {{ item_form.quantity(class="form-control item-quantity") }}
+                                        {% for error in item_form.quantity.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">小计</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">¥</span>
+                                            <input type="text" class="form-control item-subtotal" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="button" class="btn btn-danger btn-sm remove-item">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="button" id="add-item" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> 添加商品
+                        </button>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>商品总额：</span>
+                                        <span id="items-total">¥0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>配送费：</span>
+                                        <span id="delivery-fee">¥0.00</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>订单总额：</span>
+                                        <span id="order-total">¥0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{{ form.notes.label }}</label>
+                        {{ form.notes(class="form-control", id="notes", rows="3") }}
+                        {% for error in form.notes.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">返回</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // 当选择会员时，自动填充地址和电话
+        $('#member_id').change(function() {
+            var memberId = $(this).val();
+            if (memberId) {
+                $.get('/member/get_info/' + memberId, function(data) {
+                    $('#address').val(data.address || '');
+                    $('#phone').val(data.phone || '');
+                });
+            }
+        });
+        
+        // 计算小计和总计
+        function calculateTotals() {
+            var itemsTotal = 0;
+            $('.item-row').each(function() {
+                var price = parseFloat($(this).find('.item-price').val()) || 0;
+                var quantity = parseInt($(this).find('.item-quantity').val()) || 0;
+                var subtotal = price * quantity;
+                $(this).find('.item-subtotal').val(subtotal.toFixed(2));
+                itemsTotal += subtotal;
+            });
+            
+            var deliveryFee = parseFloat($('#delivery_fee').val()) || 0;
+            var orderTotal = itemsTotal + deliveryFee;
+            
+            $('#items-total').text('¥' + itemsTotal.toFixed(2));
+            $('#delivery-fee').text('¥' + deliveryFee.toFixed(2));
+            $('#order-total').text('¥' + orderTotal.toFixed(2));
+        }
+        
+        // 监听价格和数量变化
+        $(document).on('input', '.item-price, .item-quantity, #delivery_fee', calculateTotals);
+        
+        // 商品类型变化时加载对应的商品列表
+        $(document).on('change', '.item-type', function() {
+            var type = $(this).val();
+            var itemSelect = $(this).closest('.item-row').find('.item-id');
+            itemSelect.empty().append('<option value="">请选择商品</option>');
+            itemSelect.prop('disabled', !type);
+            
+            if (type) {
+                $.get('/delivery/get_items/' + type, function(data) {
+                    $.each(data, function(id, item) {
+                        itemSelect.append($('<option>', {
+                            value: item.id,
+                            text: item.name + ' (¥' + item.price + ')',
+                            'data-price': item.price
+                        }));
+                    });
+                });
+            }
+        });
+        
+        // 选择商品时自动填充价格
+        $(document).on('change', '.item-id', function() {
+            var selectedOption = $(this).find('option:selected');
+            var price = selectedOption.data('price') || '';
+            $(this).closest('.item-row').find('.item-price').val(price);
+            calculateTotals();
+        });
+        
+        // 添加商品
+        $('#add-item').click(function() {
+            var itemIndex = $('.item-row').length;
+            var newItem = `
+                <div class="item-row card mb-3">
+                    <div class="card-body">
+                        <input type="hidden" name="items-${itemIndex}-id" id="items-${itemIndex}-id">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">商品类型</label>
+                                <select class="form-select item-type">
+                                    <option value="">请选择类型</option>
+                                    <option value="service">服务</option>
+                                    <option value="product">产品</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">商品</label>
+                                <select class="form-select item-id" name="items-${itemIndex}-item_id" id="items-${itemIndex}-item_id" disabled>
+                                    <option value="">请选择商品</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">价格</label>
+                                <input type="number" class="form-control item-price" name="items-${itemIndex}-price" id="items-${itemIndex}-price" step="0.01" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">数量</label>
+                                <input type="number" class="form-control item-quantity" name="items-${itemIndex}-quantity" id="items-${itemIndex}-quantity" value="1" min="1">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">小计</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="text" class="form-control item-subtotal" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-item">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#items-container').append(newItem);
+            calculateTotals();
+        });
+        
+        // 删除商品
+        $(document).on('click', '.remove-item', function() {
+            $(this).closest('.item-row').remove();
+            calculateTotals();
+        });
+        
+        // 初始计算
+        calculateTotals();
+    });
+</script>
+{% endblock %}

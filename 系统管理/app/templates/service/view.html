@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}服务详情 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}服务详情{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">基本信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h4>{{ service.name }}</h4>
+                    <span class="badge bg-info">{{ service.type.name if service.type else '未分类' }}</span>
+                    {% if service.is_active %}
+                    <span class="badge bg-success">启用</span>
+                    {% else %}
+                    <span class="badge bg-danger">禁用</span>
+                    {% endif %}
+                    {% if service.is_delivery %}
+                    <span class="badge bg-primary">支持外卖</span>
+                    {% endif %}
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>基础价格：</strong> ¥{{ service.base_price }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>成本：</strong> ¥{{ service.cost or '未设置' }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>时长：</strong> {{ service.duration or '未设置' }} 分钟</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>提成比例：</strong> {{ service.commission_rate or 0 }}%</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <p><strong>描述：</strong></p>
+                    <p>{{ service.description or '暂无描述' }}</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('service.index') }}" class="btn btn-secondary">返回</a>
+                    <a href="{{ url_for('service.edit', id=service.id) }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold">会员价格</h6>
+                <a href="{{ url_for('service.add_price') }}?service_id={{ service.id }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> 添加价格
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>会员级别</th>
+                                <th>价格</th>
+                                <th>提成比例</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for price in service.prices %}
+                            <tr>
+                                <td>{{ price.level.name }}</td>
+                                <td>¥{{ price.price }}</td>
+                                <td>{{ price.commission_rate or service.commission_rate or 0 }}%</td>
+                                <td>
+                                    <a href="{{ url_for('service.edit_price', id=price.id) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">暂无会员价格</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">预约统计</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">总预约数</h5>
+                                <h2 class="mb-0">{{ service.appointments.count() }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">完成预约</h5>
+                                <h2 class="mb-0">{{ service.appointments.filter_by(status='completed').count() }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>最近预约</h6>
+                    <div class="list-group">
+                        {% for appointment in service.appointments.order_by(Appointment.appointment_time.desc()).limit(5).all() %}
+                        <a href="{{ url_for('appointment.view', id=appointment.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ appointment.member.name }}</h6>
+                                <small>{{ appointment.appointment_time.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1">
+                                {% if appointment.status == 'pending' %}
+                                <span class="badge bg-warning">待确认</span>
+                                {% elif appointment.status == 'confirmed' %}
+                                <span class="badge bg-info">已确认</span>
+                                {% elif appointment.status == 'completed' %}
+                                <span class="badge bg-success">已完成</span>
+                                {% elif appointment.status == 'cancelled' %}
+                                <span class="badge bg-danger">已取消</span>
+                                {% endif %}
+                                技师: {{ appointment.staff.name if appointment.staff else '未分配' }}
+                            </p>
+                        </a>
+                        {% else %}
+                        <div class="list-group-item">
+                            <p class="mb-0 text-center">暂无预约记录</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

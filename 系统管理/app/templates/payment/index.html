@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}支付管理 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}支付管理{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">支付列表</h6>
+        <a href="{{ url_for('payment.add') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> 添加支付
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="paymentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>会员</th>
+                        <th>关联业务</th>
+                        <th>金额</th>
+                        <th>支付方式</th>
+                        <th>使用积分</th>
+                        <th>支付时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.id }}</td>
+                        <td>
+                            {% if payment.member %}
+                            <a href="{{ url_for('member.view', id=payment.member.id) }}">{{ payment.member.name }}</a>
+                            {% else %}
+                            散客
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if payment.appointment %}
+                            <a href="{{ url_for('appointment.view', id=payment.appointment.id) }}">预约 #{{ payment.appointment.id }}</a>
+                            {% elif payment.delivery_order %}
+                            <a href="{{ url_for('delivery.view', id=payment.delivery_order.id) }}">外卖 #{{ payment.delivery_order.id }}</a>
+                            {% else %}
+                            无关联业务
+                            {% endif %}
+                        </td>
+                        <td>¥{{ payment.amount }}</td>
+                        <td>
+                            {% if payment.payment_method == 'cash' %}
+                            <span class="badge bg-secondary">现金</span>
+                            {% elif payment.payment_method == 'wechat' %}
+                            <span class="badge bg-success">微信</span>
+                            {% elif payment.payment_method == 'alipay' %}
+                            <span class="badge bg-primary">支付宝</span>
+                            {% elif payment.payment_method == 'card' %}
+                            <span class="badge bg-info">银行卡</span>
+                            {% elif payment.payment_method == 'balance' %}
+                            <span class="badge bg-warning">账户余额</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ payment.points_used or 0 }}</td>
+                        <td>{{ payment.payment_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <a href="{{ url_for('payment.view', id=payment.id) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">暂无支付记录</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#paymentsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+            },
+            order: [[6, 'desc']]
+        });
+    });
+</script>
+{% endblock %}

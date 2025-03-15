@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘 - 管理系统{% endblock %}
+
+{% block content %}
+<div class="layui-card">
+    <div class="layui-card-header">系统仪表盘</div>
+    <div class="layui-card-body">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md6">
+                <div class="layui-card">
+                    <div class="layui-card-header">系统服务状态</div>
+                    <div class="layui-card-body">
+                        <table class="layui-table">
+                            <colgroup>
+                                <col width="150">
+                                <col width="200">
+                                <col>
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>服务名称</th>
+                                    <th>状态</th>
+                                    <th>描述</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Web 服务</td>
+                                    <td><span class="layui-badge layui-bg-green">运行中</span></td>
+                                    <td>Web 服务器正常运行中。</td>
+                                </tr>
+                                <tr>
+                                    <td>数据库服务</td>
+                                    <td><span class="layui-badge layui-bg-green">运行中</span></td>
+                                    <td>数据库服务正常运行中。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md6">
+                <div class="layui-card">
+                    <div class="layui-card-header">系统资源</div>
+                    <div class="layui-card-body">
+                        <div class="layui-progress layui-progress-big" lay-showpercent="true">
+                            <h3>CPU 使用率</h3>
+                            <div class="layui-progress-bar" lay-percent="25%"></div>
+                        </div>
+                        <div class="layui-progress layui-progress-big" lay-showpercent="true">
+                            <h3>内存使用率</h3>
+                            <div class="layui-progress-bar layui-bg-blue" lay-percent="40%"></div>
+                        </div>
+                        <div class="layui-progress layui-progress-big" lay-showpercent="true">
+                            <h3>磁盘使用率</h3>
+                            <div class="layui-progress-bar layui-bg-orange" lay-percent="60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+layui.use(['element'], function(){
+    var element = layui.element;
+    
+    // 渲染进度条
+    element.render('progress');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}员工业绩报表 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}员工业绩报表{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">员工业绩统计</h6>
+        <div>
+            <form class="d-flex" method="get">
+                <div class="input-group me-2">
+                    <span class="input-group-text">开始日期</span>
+                    <input type="date" class="form-control" name="start_date" value="{{ request.args.get('start_date', start_date.strftime('%Y-%m-%d')) }}">
+                </div>
+                <div class="input-group me-2">
+                    <span class="input-group-text">结束日期</span>
+                    <input type="date" class="form-control" name="end_date" value="{{ request.args.get('end_date', end_date.strftime('%Y-%m-%d')) }}">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">总业绩</h5>
+                        <h2 class="mb-0">¥{{ stats.total_performance }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">总提成</h5>
+                        <h2 class="mb-0">¥{{ stats.total_commission }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">完成预约</h5>
+                        <h2 class="mb-0">{{ stats.completed_appointments }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">平均客单价</h5>
+                        <h2 class="mb-0">¥{{ stats.average_order }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">员工业绩排行</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>员工姓名</th>
+                                <th>职位</th>
+                                <th>完成预约</th>
+                                <th>业绩金额</th>
+                                <th>提成金额</th>
+                                <th>占比</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for staff in staff_performance %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ staff.name }}</td>
+                                <td>
+                                    {% if staff.role == 'admin' %}
+                                    <span class="badge bg-danger">管理员</span>
+                                    {% elif staff.role == 'manager' %}
+                                    <span class="badge bg-primary">经理</span>
+                                    {% elif staff.role == 'technician' %}
+                                    <span class="badge bg-info">技师</span>
+                                    {% elif staff.role == 'receptionist' %}
+                                    <span class="badge bg-success">前台</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">其他</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ staff.appointment_count }}</td>
+                                <td>¥{{ staff.performance_amount }}</td>
+                                <td>¥{{ staff.commission_amount }}</td>
+                                <td>{{ staff.percentage }}%</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">暂无数据</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">业绩趋势</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">业绩分布</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceDistributionChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 业绩趋势图表
+    var performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    var performanceChart = new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: {{ performance_trend.labels|tojson }},
+            datasets: [{
+                label: '业绩金额',
+                data: {{ performance_trend.amounts|tojson }},
+                backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 2,
+                tension: 0.1
+            }, {
+                label: '提成金额',
+                data: {{ performance_trend.commissions|tojson }},
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 2,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '金额 (¥)'
+                    }
+                }
+            }
+        }
+    });
+    
+    // 业绩分布图表
+    var distributionCtx = document.getElementById('performanceDistributionChart').getContext('2d');
+    var distributionChart = new Chart(distributionCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ performance_distribution.labels|tojson }},
+            datasets: [{
+                label: '业绩金额',
+                data: {{ performance_distribution.amounts|tojson }},
+                backgroundColor: [
+                    'rgba(78, 115, 223, 0.8)',
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(246, 194, 62, 0.8)',
+                    'rgba(231, 74, 59, 0.8)',
+                    'rgba(23, 162, 184, 0.8)',
+                    'rgba(108, 117, 125, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '金额 (¥)'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

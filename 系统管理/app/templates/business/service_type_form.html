@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - 头疗SPA管理系统{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('business.service_types') }}"><cite>服务类型管理</cite></a>
+<a><cite>{{ title }}</cite></a>
+{% endblock %}
+
+{% block content %}
+<div class="layui-card">
+    <div class="layui-card-header">{{ title }}</div>
+    <div class="layui-card-body">
+        <form class="layui-form" method="post">
+            {{ form.hidden_tag() }}
+            <div class="layui-form-item">
+                <label class="layui-form-label">类型名称</label>
+                <div class="layui-input-block">
+                    {{ form.name(class="layui-input", placeholder="请输入类型名称") }}
+                    {% if form.name.errors %}
+                    <div class="layui-form-mid layui-word-aux" style="color: red;">{{ form.name.errors[0] }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-block">
+                    {{ form.description(class="layui-textarea", placeholder="请输入描述信息") }}
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="is_active" lay-skin="switch" lay-text="启用|禁用" 
+                           {% if form.is_active.data %}checked{% endif %}>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    {{ form.submit(class="layui-btn") }}
+                    <a href="{{ url_for('business.service_types') }}" class="layui-btn layui-btn-primary">返回</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    layui.use(['form'], function(){
+        var form = layui.form;
+        form.render();
+    });
+</script>
+{% endblock %} 

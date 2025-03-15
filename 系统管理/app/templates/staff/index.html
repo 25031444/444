@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}员工管理 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}员工管理{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">员工列表</h6>
+        <a href="{{ url_for('staff.add') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> 添加员工
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="staffTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>用户名</th>
+                        <th>电话</th>
+                        <th>职位</th>
+                        <th>状态</th>
+                        <th>入职时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staffs %}
+                    <tr>
+                        <td>{{ staff.id }}</td>
+                        <td>{{ staff.name }}</td>
+                        <td>{{ staff.username }}</td>
+                        <td>{{ staff.phone }}</td>
+                        <td>
+                            {% if staff.role == 'admin' %}
+                            <span class="badge bg-danger">管理员</span>
+                            {% elif staff.role == 'manager' %}
+                            <span class="badge bg-primary">经理</span>
+                            {% elif staff.role == 'technician' %}
+                            <span class="badge bg-info">技师</span>
+                            {% elif staff.role == 'receptionist' %}
+                            <span class="badge bg-success">前台</span>
+                            {% else %}
+                            <span class="badge bg-secondary">其他</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if staff.is_active %}
+                            <span class="badge bg-success">在职</span>
+                            {% else %}
+                            <span class="badge bg-danger">离职</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ staff.join_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('staff.view', id=staff.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('staff.edit', id=staff.id) }}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if staff.id != current_user.id %}
+                                <a href="{{ url_for('staff.toggle_status', id=staff.id) }}" class="btn btn-sm {% if staff.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                    <i class="fas {% if staff.is_active %}fa-user-times{% else %}fa-user-check{% endif %}"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">暂无员工</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#staffTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+            },
+            order: [[0, 'desc']]
+        });
+    });
+</script>
+{% endblock %}

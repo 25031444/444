@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}外卖订单详情 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}外卖订单详情{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">订单信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h4>订单 #{{ order.id }}</h4>
+                    <span class="badge 
+                        {% if order.status == 'pending' %}bg-warning
+                        {% elif order.status == 'confirmed' %}bg-info
+                        {% elif order.status == 'completed' %}bg-success
+                        {% elif order.status == 'cancelled' %}bg-danger
+                        {% elif order.status == 'refunded' %}bg-secondary
+                        {% endif %}">
+                        {% if order.status == 'pending' %}待确认
+                        {% elif order.status == 'confirmed' %}已确认
+                        {% elif order.status == 'completed' %}已完成
+                        {% elif order.status == 'cancelled' %}已取消
+                        {% elif order.status == 'refunded' %}已退款
+                        {% endif %}
+                    </span>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>会员：</strong> 
+                            {% if order.member %}
+                            <a href="{{ url_for('member.view', id=order.member.id) }}">{{ order.member.name }}</a>
+                            {% else %}
+                            散客
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>联系电话：</strong> {{ order.phone }}</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <p><strong>收货地址：</strong> {{ order.address }}</p>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>创建时间：</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>配送费：</strong> ¥{{ order.delivery_fee }}</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <p><strong>备注：</strong> {{ order.notes or '无' }}</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">返回</a>
+                    <div>
+                        {% if order.status == 'pending' %}
+                        <a href="{{ url_for('delivery.confirm', id=order.id) }}" class="btn btn-info">
+                            <i class="fas fa-check"></i> 确认
+                        </a>
+                        {% elif order.status == 'confirmed' %}
+                        <a href="{{ url_for('delivery.complete', id=order.id) }}" class="btn btn-success">
+                            <i class="fas fa-check-double"></i> 完成
+                        </a>
+                        {% endif %}
+                        
+                        {% if order.status == 'pending' or order.status == 'confirmed' %}
+                        <a href="{{ url_for('delivery.edit', id=order.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a href="{{ url_for('delivery.cancel', id=order.id) }}" class="btn btn-danger">
+                            <i class="fas fa-times"></i> 取消
+                        </a>
+                        {% endif %}
+                        
+                        {% if order.status == 'completed' and not order.payment %}
+                        <a href="{{ url_for('payment.add') }}?delivery_order_id={{ order.id }}" class="btn btn-primary">
+                            <i class="fas fa-credit-card"></i> 支付
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">订单商品</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>商品</th>
+                                <th>类型</th>
+                                <th>单价</th>
+                                <th>数量</th>
+                                <th>小计</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>
+                                    {% if item.service %}
+                                    <a href="{{ url_for('service.view', id=item.service.id) }}">{{ item.service.name }}</a>
+                                    {% elif item.product %}
+                                    <a href="{{ url_for('product.view', id=item.product.id) }}">{{ item.product.name }}</a>
+                                    {% else %}
+                                    未知商品
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.service %}
+                                    <span class="badge bg-info">服务</span>
+                                    {% elif item.product %}
+                                    <span class="badge bg-primary">产品</span>
+                                    {% endif %}
+                                </td>
+                                <td>¥{{ item.price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>¥{{ item.price * item.quantity }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">暂无商品</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>商品总额：</strong></td>
+                                <td>¥{{ order.items_total }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>配送费：</strong></td>
+                                <td>¥{{ order.delivery_fee }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>订单总额：</strong></td>
+                                <td><strong>¥{{ order.total_amount }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        {% if order.payment %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">支付信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h5>支付 #{{ order.payment.id }}</h5>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <p><strong>金额：</strong> ¥{{ order.payment.amount }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>支付方式：</strong> 
+                        {% if order.payment.payment_method == 'cash' %}
+                        <span class="badge bg-secondary">现金</span>
+                        {% elif order.payment.payment_method == 'wechat' %}
+                        <span class="badge bg-success">微信</span>
+                        {% elif order.payment.payment_method == 'alipay' %}
+                        <span class="badge bg-primary">支付宝</span>
+                        {% elif order.payment.payment_method == 'card' %}
+                        <span class="badge bg-info">银行卡</span>
+                        {% elif order.payment.payment_method == 'balance' %}
+                        <span class="badge bg-warning">账户余额</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>使用积分：</strong> {{ order.payment.points_used or 0 }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>支付时间：</strong> {{ order.payment.payment_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>备注：</strong> {{ order.payment.notes or '无' }}</p>
+                </div>
+                <div class="text-center">
+                    <a href="{{ url_for('payment.view', id=order.payment.id) }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> 查看详情
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if order.member %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">会员信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 text-center">
+                    <div class="avatar-circle mx-auto mb-3" style="width: 80px; height: 80px; background-color: #007bff; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+                        <span style="font-size: 30px; color: white;">{{ order.member.name[0] }}</span>
+                    </div>
+                    <h5>{{ order.member.name }}</h5>
+                    <p class="text-muted">{{ order.member.level.name if order.member.level else '普通会员' }}</p>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <p><strong>余额：</strong> ¥{{ order.member.balance }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>积分：</strong> {{ order.member.points }}</p>
+                </div>
+                <div class="text-center">
+                    <a href="{{ url_for('member.view', id=order.member.id) }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> 查看详情
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

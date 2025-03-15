@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - 头疗SPA管理系统{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="member_id" class="form-label">{{ form.member_id.label }}</label>
+                            {{ form.member_id(class="form-select", id="member_id") }}
+                            {% for error in form.member_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="amount" class="form-label">{{ form.amount.label }}</label>
+                            {{ form.amount(class="form-control", id="amount") }}
+                            {% for error in form.amount.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="appointment_id" class="form-label">{{ form.appointment_id.label }}</label>
+                            {{ form.appointment_id(class="form-select", id="appointment_id") }}
+                            {% for error in form.appointment_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="delivery_order_id" class="form-label">{{ form.delivery_order_id.label }}</label>
+                            {{ form.delivery_order_id(class="form-select", id="delivery_order_id") }}
+                            {% for error in form.delivery_order_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="payment_method" class="form-label">{{ form.payment_method.label }}</label>
+                            {{ form.payment_method(class="form-select", id="payment_method") }}
+                            {% for error in form.payment_method.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="points_used" class="form-label">{{ form.points_used.label }}</label>
+                            {{ form.points_used(class="form-control", id="points_used") }}
+                            {% for error in form.points_used.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            <div id="points-info" class="form-text"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{{ form.notes.label }}</label>
+                        {{ form.notes(class="form-control", id="notes", rows="3") }}
+                        {% for error in form.notes.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('payment.index') }}" class="btn btn-secondary">返回</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // 当选择会员时，获取会员信息
+        $('#member_id').change(function() {
+            var memberId = $(this).val();
+            if (memberId) {
+                $.get('/payment/get_member_info/' + memberId, function(data) {
+                    $('#points-info').html('可用积分: ' + data.points + ' (1积分 = ¥0.01)');
+                    
+                    // 如果会员余额为0，禁用账户余额支付选项
+                    if (data.balance <= 0) {
+                        $("#payment_method option[value='balance']").prop('disabled', true);
+                    } else {
+                        $("#payment_method option[value='balance']").prop('disabled', false);
+                    }
+                });
+            } else {
+                $('#points-info').html('');
+                $("#payment_method option[value='balance']").prop('disabled', true);
+            }
+        });
+        
+        // 当选择预约时，自动填充会员和金额
+        $('#appointment_id').change(function() {
+            var appointmentId = $(this).val();
+            if (appointmentId) {
+                $.get('/appointment/get_info/' + appointmentId, function(data) {
+                    if (data.member_id) {
+                        $('#member_id').val(data.member_id).trigger('change');
+                    }
+                    if (data.price) {
+                        $('#amount').val(data.price);
+                    }
+                    
+                    // 如果选择了预约，禁用外卖订单选择
+                    $('#delivery_order_id').val('').prop('disabled', true);
+                });
+            } else {
+                $('#delivery_order_id').prop('disabled', false);
+            }
+        });
+        
+        // 当选择外卖订单时，自动填充会员和金额
+        $('#delivery_order_id').change(function() {
+            var orderId = $(this).val();
+            if (orderId) {
+                $.get('/delivery/get_info/' + orderId, function(data) {
+                    if (data.member_id) {
+                        $('#member_id').val(data.member_id).trigger('change');
+                    }
+                    if (data.total_amount) {
+                        $('#amount').val(data.total_amount);
+                    }
+                    
+                    // 如果选择了外卖订单，禁用预约选择
+                    $('#appointment_id').val('').prop('disabled', true);
+                });
+            } else {
+                $('#appointment_id').prop('disabled', false);
+            }
+        });
+        
+        // 初始化时触发一次会员选择事件
+        $('#member_id').trigger('change');
+        
+        // 如果URL中有预约ID或外卖订单ID参数，自动选择对应的选项
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentId = urlParams.get('appointment_id');
+        const deliveryOrderId = urlParams.get('delivery_order_id');
+        
+        if (appointmentId) {
+            $('#appointment_id').val(appointmentId).trigger('change');
+        } else if (deliveryOrderId) {
+            $('#delivery_order_id').val(deliveryOrderId).trigger('change');
+        }
+    });
+</script>
+{% endblock %}

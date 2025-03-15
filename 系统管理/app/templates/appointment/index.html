@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}预约管理 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}预约管理{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">预约列表</h6>
+        <div>
+            <a href="{{ url_for('appointment.calendar') }}" class="btn btn-info btn-sm me-2">
+                <i class="fas fa-calendar"></i> 日历视图
+            </a>
+            <a href="{{ url_for('appointment.add') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> 添加预约
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="appointmentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>会员</th>
+                        <th>服务项目</th>
+                        <th>技师</th>
+                        <th>预约时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.id }}</td>
+                        <td>{{ appointment.member.name if appointment.member else '散客' }}</td>
+                        <td>{{ appointment.service.name if appointment.service else '未指定' }}</td>
+                        <td>{{ appointment.staff.name if appointment.staff else '未分配' }}</td>
+                        <td>{{ appointment.appointment_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if appointment.status == 'pending' %}
+                            <span class="badge bg-warning">待确认</span>
+                            {% elif appointment.status == 'confirmed' %}
+                            <span class="badge bg-info">已确认</span>
+                            {% elif appointment.status == 'completed' %}
+                            <span class="badge bg-success">已完成</span>
+                            {% elif appointment.status == 'cancelled' %}
+                            <span class="badge bg-danger">已取消</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('appointment.view', id=appointment.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('appointment.edit', id=appointment.id) }}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if appointment.status == 'completed' and not appointment.payment %}
+                                <a href="{{ url_for('payment.add') }}?appointment_id={{ appointment.id }}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-credit-card"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">暂无预约</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#appointmentsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+            },
+            order: [[4, 'desc']]
+        });
+    });
+</script>
+{% endblock %}

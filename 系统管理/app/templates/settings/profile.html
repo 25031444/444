@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}个人资料 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}个人资料{% endblock %}
+
+{% block styles %}
+<style>
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        background-color: #007bff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .avatar-text {
+        font-size: 40px;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">基本信息</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="avatar-circle mx-auto mb-3">
+                    <span class="avatar-text">{{ current_user.name[0] }}</span>
+                </div>
+                <h5>{{ current_user.name }}</h5>
+                <p class="text-muted">
+                    {% if current_user.role == 'admin' %}
+                    <span class="badge bg-danger">管理员</span>
+                    {% elif current_user.role == 'manager' %}
+                    <span class="badge bg-primary">经理</span>
+                    {% elif current_user.role == 'technician' %}
+                    <span class="badge bg-info">技师</span>
+                    {% elif current_user.role == 'receptionist' %}
+                    <span class="badge bg-success">前台</span>
+                    {% else %}
+                    <span class="badge bg-secondary">其他</span>
+                    {% endif %}
+                </p>
+                <hr>
+                <div class="text-start">
+                    <p><strong>用户名：</strong> {{ current_user.username }}</p>
+                    <p><strong>电话：</strong> {{ current_user.phone }}</p>
+                    <p><strong>入职时间：</strong> {{ current_user.join_date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>上次登录：</strong> {{ current_user.last_login.strftime('%Y-%m-%d %H:%M') if current_user.last_login else '从未登录' }}</p>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('settings.change_password') }}" class="btn btn-warning">
+                        <i class="fas fa-key"></i> 修改密码
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">编辑个人资料</h6>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">{{ form.name.label }}</label>
+                            {{ form.name(class="form-control", id="name") }}
+                            {% for error in form.name.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">{{ form.phone.label }}</label>
+                            {{ form.phone(class="form-control", id="phone") }}
+                            {% for error in form.phone.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">{{ form.address.label }}</label>
+                        {{ form.address(class="form-control", id="address") }}
+                        {% for error in form.address.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">最近操作记录</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>操作类型</th>
+                                <th>详情</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if log.action_type == 'login' %}
+                                    <span class="badge bg-info">登录系统</span>
+                                    {% elif log.action_type == 'appointment' %}
+                                    <span class="badge bg-primary">预约管理</span>
+                                    {% elif log.action_type == 'payment' %}
+                                    <span class="badge bg-success">支付处理</span>
+                                    {% elif log.action_type == 'member' %}
+                                    <span class="badge bg-warning">会员管理</span>
+                                    {% elif log.action_type == 'delivery' %}
+                                    <span class="badge bg-secondary">外卖订单</span>
+                                    {% else %}
+                                    <span class="badge bg-dark">其他操作</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ log.description }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">暂无操作记录</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

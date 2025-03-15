@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - 头疗SPA管理系统{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="member_id" class="form-label">{{ form.member_id.label }}</label>
+                            {{ form.member_id(class="form-select", id="member_id") }}
+                            {% for error in form.member_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="service_id" class="form-label">{{ form.service_id.label }}</label>
+                            {{ form.service_id(class="form-select", id="service_id") }}
+                            {% for error in form.service_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="staff_id" class="form-label">{{ form.staff_id.label }}</label>
+                            {{ form.staff_id(class="form-select", id="staff_id") }}
+                            {% for error in form.staff_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">{{ form.status.label }}</label>
+                            {{ form.status(class="form-select", id="status") }}
+                            {% for error in form.status.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="appointment_date" class="form-label">{{ form.appointment_date.label }}</label>
+                            {{ form.appointment_date(class="form-control", id="appointment_date", type="date") }}
+                            {% for error in form.appointment_date.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="appointment_time" class="form-label">{{ form.appointment_time.label }}</label>
+                            {{ form.appointment_time(class="form-control", id="appointment_time", type="time") }}
+                            {% for error in form.appointment_time.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{{ form.notes.label }}</label>
+                        {{ form.notes(class="form-control", id="notes", rows="3") }}
+                        {% for error in form.notes.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('appointment.index') }}" class="btn btn-secondary">返回</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // 当选择服务时，自动设置预约时长
+        $('#service_id').change(function() {
+            var serviceId = $(this).val();
+            if (serviceId) {
+                $.get('/service/get_duration/' + serviceId, function(data) {
+                    if (data.duration) {
+                        // 可以在这里添加逻辑，根据服务时长自动计算结束时间
+                        console.log('服务时长: ' + data.duration + '分钟');
+                    }
+                });
+            }
+        });
+        
+        // 当选择会员时，获取会员信息
+        $('#member_id').change(function() {
+            var memberId = $(this).val();
+            if (memberId) {
+                $.get('/member/get_info/' + memberId, function(data) {
+                    console.log('会员信息:', data);
+                    // 可以在这里添加逻辑，显示会员的余额、积分等信息
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

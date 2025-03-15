@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}服务管理 - 头疗SPA管理系统{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('business.services') }}"><cite>服务管理</cite></a>
+{% endblock %}
+
+{% block content %}
+<div class="layui-card">
+    <div class="layui-card-header">
+        <i class="fa fa-list"></i> 服务列表
+        <div style="float: right;">
+            <a href="{{ url_for('business.service_types') }}" class="layui-btn layui-btn-sm layui-btn-primary">
+                <i class="fa fa-tags"></i> 管理服务类型
+            </a>
+            <a href="{{ url_for('business.add_service') }}" class="layui-btn layui-btn-sm layui-btn-normal">
+                <i class="fa fa-plus"></i> 添加服务
+            </a>
+        </div>
+    </div>
+    <div class="layui-card-body">
+        <table class="layui-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>时长(分钟)</th>
+                    <th>价格</th>
+                    <th>会员价</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>{{ service.id }}</td>
+                    <td>{{ service.name }}</td>
+                    <td>{{ service.type.name if service.type else '未分类' }}</td>
+                    <td>{{ service.duration }}</td>
+                    <td>{{ service.current_price().price if service.current_price() else '未设置' }}</td>
+                    <td>{{ service.current_price().member_price if service.current_price() else '未设置' }}</td>
+                    <td>
+                        {% if service.is_active %}
+                        <span class="layui-badge layui-bg-green">启用</span>
+                        {% else %}
+                        <span class="layui-badge layui-bg-gray">禁用</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="#" class="layui-btn layui-btn-xs">
+                            <i class="fa fa-edit"></i> 编辑
+                        </a>
+                        <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-danger">
+                            <i class="fa fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

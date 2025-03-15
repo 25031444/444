@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}员工详情 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}员工详情{% endblock %}
+
+{% block styles %}
+<style>
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        background-color: #007bff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .avatar-text {
+        font-size: 40px;
+        color: white;
+    }
+    .info-item {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    .info-label {
+        width: 100px;
+        font-weight: bold;
+    }
+    .info-value {
+        flex: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">基本信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 text-center">
+                    <div class="avatar-circle mx-auto mb-3">
+                        <span class="avatar-text">{{ staff.name[0] }}</span>
+                    </div>
+                    <h5>{{ staff.name }}</h5>
+                    <p class="text-muted">
+                        {% if staff.role == 'admin' %}
+                        <span class="badge bg-danger">管理员</span>
+                        {% elif staff.role == 'manager' %}
+                        <span class="badge bg-primary">经理</span>
+                        {% elif staff.role == 'technician' %}
+                        <span class="badge bg-info">技师</span>
+                        {% elif staff.role == 'receptionist' %}
+                        <span class="badge bg-success">前台</span>
+                        {% else %}
+                        <span class="badge bg-secondary">其他</span>
+                        {% endif %}
+                        
+                        {% if staff.is_active %}
+                        <span class="badge bg-success">在职</span>
+                        {% else %}
+                        <span class="badge bg-danger">离职</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <hr>
+                <div class="info-item">
+                    <div class="info-label">用户名：</div>
+                    <div class="info-value">{{ staff.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">电话：</div>
+                    <div class="info-value">{{ staff.phone }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">入职时间：</div>
+                    <div class="info-value">{{ staff.join_date.strftime('%Y-%m-%d') }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">地址：</div>
+                    <div class="info-value">{{ staff.address or '未设置' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">备注：</div>
+                    <div class="info-value">{{ staff.notes or '无' }}</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('staff.index') }}" class="btn btn-secondary">返回</a>
+                    <div>
+                        <a href="{{ url_for('staff.edit', id=staff.id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        {% if staff.id != current_user.id %}
+                        <a href="{{ url_for('staff.toggle_status', id=staff.id) }}" class="btn {% if staff.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                            <i class="fas {% if staff.is_active %}fa-user-times{% else %}fa-user-check{% endif %}"></i> 
+                            {% if staff.is_active %}设为离职{% else %}设为在职{% endif %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        {% if staff.role == 'technician' %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">预约统计</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">总预约数</h5>
+                                <h2 class="mb-0">{{ staff.appointments.count() }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">待确认</h5>
+                                <h2 class="mb-0">{{ staff.appointments.filter_by(status='pending').count() }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">已完成</h5>
+                                <h2 class="mb-0">{{ staff.appointments.filter_by(status='completed').count() }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">已取消</h5>
+                                <h2 class="mb-0">{{ staff.appointments.filter_by(status='cancelled').count() }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>最近预约</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>会员</th>
+                                    <th>服务项目</th>
+                                    <th>预约时间</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in staff.appointments.order_by(Appointment.appointment_time.desc()).limit(5).all() %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('appointment.view', id=appointment.id) }}">{{ appointment.id }}</a>
+                                    </td>
+                                    <td>{{ appointment.member.name if appointment.member else '散客' }}</td>
+                                    <td>{{ appointment.service.name if appointment.service else '未指定' }}</td>
+                                    <td>{{ appointment.appointment_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        {% if appointment.status == 'pending' %}
+                                        <span class="badge bg-warning">待确认</span>
+                                        {% elif appointment.status == 'confirmed' %}
+                                        <span class="badge bg-info">已确认</span>
+                                        {% elif appointment.status == 'completed' %}
+                                        <span class="badge bg-success">已完成</span>
+                                        {% elif appointment.status == 'cancelled' %}
+                                        <span class="badge bg-danger">已取消</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">暂无预约记录</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">业绩统计</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">本月完成预约</h5>
+                                <h2 class="mb-0">{{ monthly_stats.completed_count }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-primary text-white mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">本月业绩金额</h5>
+                                <h2 class="mb-0">¥{{ monthly_stats.total_amount }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <canvas id="performanceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">操作记录</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>操作类型</th>
+                                <th>详情</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if log.action_type == 'login' %}
+                                    <span class="badge bg-info">登录系统</span>
+                                    {% elif log.action_type == 'appointment' %}
+                                    <span class="badge bg-primary">预约管理</span>
+                                    {% elif log.action_type == 'payment' %}
+                                    <span class="badge bg-success">支付处理</span>
+                                    {% elif log.action_type == 'member' %}
+                                    <span class="badge bg-warning">会员管理</span>
+                                    {% elif log.action_type == 'delivery' %}
+                                    <span class="badge bg-secondary">外卖订单</span>
+                                    {% else %}
+                                    <span class="badge bg-dark">其他操作</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ log.description }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">暂无操作记录</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if staff.role == 'technician' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 业绩图表
+    var ctx = document.getElementById('performanceChart').getContext('2d');
+    var performanceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ performance_data.labels|tojson }},
+            datasets: [{
+                label: '完成预约数',
+                data: {{ performance_data.appointment_counts|tojson }},
+                backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                borderColor: 'rgba(23, 162, 184, 1)',
+                borderWidth: 2,
+                tension: 0.1
+            }, {
+                label: '业绩金额',
+                data: {{ performance_data.amounts|tojson }},
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 2,
+                tension: 0.1,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '预约数'
+                    }
+                },
+                y1: {
+                    beginAtZero: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: '金额 (¥)'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

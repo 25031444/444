@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}服务价格管理 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}服务价格管理{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">服务价格列表</h6>
+        <div>
+            <a href="{{ url_for('service.index') }}" class="btn btn-secondary btn-sm me-2">
+                <i class="fas fa-arrow-left"></i> 返回服务列表
+            </a>
+            <a href="{{ url_for('service.add_price') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> 添加服务价格
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="pricesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>服务项目</th>
+                        <th>会员级别</th>
+                        <th>价格</th>
+                        <th>提成比例</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for price in prices %}
+                    <tr>
+                        <td>{{ price.id }}</td>
+                        <td>{{ price.service.name }}</td>
+                        <td>{{ price.level.name }}</td>
+                        <td>¥{{ price.price }}</td>
+                        <td>{{ price.commission_rate or price.service.commission_rate or 0 }}%</td>
+                        <td>
+                            <a href="{{ url_for('service.edit_price', id=price.id) }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">暂无服务价格</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#pricesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+            },
+            order: [[0, 'desc']]
+        });
+    });
+</script>
+{% endblock %}

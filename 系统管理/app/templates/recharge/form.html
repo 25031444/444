@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - 头疗SPA管理系统{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="member_id" class="form-label">{{ form.member_id.label }}</label>
+                            {{ form.member_id(class="form-select", id="member_id") }}
+                            {% for error in form.member_id.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="amount" class="form-label">{{ form.amount.label }}</label>
+                            {{ form.amount(class="form-control", id="amount") }}
+                            {% for error in form.amount.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="payment_method" class="form-label">{{ form.payment_method.label }}</label>
+                            {{ form.payment_method(class="form-select", id="payment_method") }}
+                            {% for error in form.payment_method.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="points_added" class="form-label">{{ form.points_added.label }}</label>
+                            {{ form.points_added(class="form-control", id="points_added", readonly=true) }}
+                            {% for error in form.points_added.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">根据会员级别自动计算</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{{ form.notes.label }}</label>
+                        {{ form.notes(class="form-control", id="notes", rows="3") }}
+                        {% for error in form.notes.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('recharge.index') }}" class="btn btn-secondary">返回</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // 当选择会员或修改金额时，计算积分
+        function calculatePoints() {
+            var memberId = $('#member_id').val();
+            var amount = $('#amount').val();
+            
+            if (memberId && amount) {
+                $.get('/recharge/calculate_points', {
+                    member_id: memberId,
+                    amount: amount
+                }, function(data) {
+                    $('#points_added').val(data.points);
+                });
+            }
+        }
+        
+        $('#member_id').change(calculatePoints);
+        $('#amount').on('input', calculatePoints);
+        
+        // 初始化时触发一次计算
+        calculatePoints();
+        
+        // 如果URL中有会员ID参数，自动选择对应的会员
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberId = urlParams.get('member_id');
+        
+        if (memberId) {
+            $('#member_id').val(memberId).trigger('change');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}添加服务 - 头疗SPA管理系统{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('business.services') }}"><cite>服务管理</cite></a>
+<a><cite>添加服务</cite></a>
+{% endblock %}
+
+{% block content %}
+<div class="layui-card">
+    <div class="layui-card-header">
+        <i class="fa fa-plus"></i> 添加服务
+    </div>
+    <div class="layui-card-body">
+        <form class="layui-form" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" required lay-verify="required" placeholder="请输入服务名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务类型</label>
+                <div class="layui-input-block">
+                    <select name="type_id" lay-verify="required">
+                        <option value="">请选择服务类型</option>
+                        {% for type in types %}
+                        <option value="{{ type.id }}">{{ type.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务时长</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="duration" required lay-verify="required|number" placeholder="请输入服务时长" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">分钟</div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务价格</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="price" required lay-verify="required|number" placeholder="请输入服务价格" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">元</div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">会员价格</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="member_price" required lay-verify="required|number" placeholder="请输入会员价格" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">元</div>
+            </div>
+            
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">服务描述</label>
+                <div class="layui-input-block">
+                    <textarea name="description" placeholder="请输入服务描述" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formSubmit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    <a href="{{ url_for('business.services') }}" class="layui-btn layui-btn-primary">返回</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+layui.use(['form', 'layer'], function(){
+    var form = layui.form;
+    var layer = layui.layer;
+    
+    // 监听提交
+    form.on('submit(formSubmit)', function(data){
+        return true;
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 管理系统{% endblock %}
+
+{% block breadcrumb %}
+<a><cite>控制台</cite></a>
+{% endblock %}
+
+{% block content %}
+<!-- 数据概览 -->
+<div class="layui-row layui-col-space15">
+    <div class="layui-col-md3 layui-col-sm6">
+        <div class="data-card data-card-blue">
+            <div class="data-card-icon">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="data-card-info">
+                <div class="data-card-title">会员总数</div>
+                <div class="data-card-value">1,286</div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md3 layui-col-sm6">
+        <div class="data-card data-card-green">
+            <div class="data-card-icon">
+                <i class="fa fa-calendar-check-o"></i>
+            </div>
+            <div class="data-card-info">
+                <div class="data-card-title">今日预约</div>
+                <div class="data-card-value">28</div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md3 layui-col-sm6">
+        <div class="data-card data-card-orange">
+            <div class="data-card-icon">
+                <i class="fa fa-rmb"></i>
+            </div>
+            <div class="data-card-info">
+                <div class="data-card-title">今日收入</div>
+                <div class="data-card-value">￥6,580</div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md3 layui-col-sm6">
+        <div class="data-card data-card-red">
+            <div class="data-card-icon">
+                <i class="fa fa-shopping-bag"></i>
+            </div>
+            <div class="data-card-info">
+                <div class="data-card-title">产品销量</div>
+                <div class="data-card-value">156</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 图表和数据 -->
+<div class="layui-row layui-col-space15">
+    <!-- 营业趋势图 -->
+    <div class="layui-col-md8">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <i class="fa fa-line-chart"></i> 营业趋势
+                <div class="layui-btn-group" style="float: right;">
+                    <button class="layui-btn layui-btn-primary layui-btn-sm">日</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-sm layui-btn-active">周</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-sm">月</button>
+                </div>
+            </div>
+            <div class="layui-card-body">
+                <div id="sales-chart" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 服务分布图 -->
+    <div class="layui-col-md4">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <i class="fa fa-pie-chart"></i> 服务分布
+            </div>
+            <div class="layui-card-body">
+                <div id="service-chart" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 预约和公告 -->
+<div class="layui-row layui-col-space15">
+    <!-- 今日预约 -->
+    <div class="layui-col-md6">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <i class="fa fa-calendar"></i> 今日预约
+                <a href="javascript:;" style="float: right; color: #1E9FFF;">查看更多</a>
+            </div>
+            <div class="layui-card-body">
+                <table class="layui-table" lay-skin="line">
+                    <colgroup>
+                        <col width="50">
+                        <col width="100">
+                        <col width="100">
+                        <col width="100">
+                        <col>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>会员</th>
+                            <th>服务项目</th>
+                            <th>预约时间</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>张三</td>
+                            <td>头部按摩</td>
+                            <td>10:00-11:00</td>
+                            <td><span class="layui-badge layui-bg-green">已确认</span></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>李四</td>
+                            <td>全身SPA</td>
+                            <td>13:30-15:00</td>
+                            <td><span class="layui-badge layui-bg-orange">待确认</span></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>王五</td>
+                            <td>精油按摩</td>
+                            <td>16:00-17:00</td>
+                            <td><span class="layui-badge layui-bg-green">已确认</span></td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>赵六</td>
+                            <td>足部按摩</td>
+                            <td>18:30-19:30</td>
+                            <td><span class="layui-badge layui-bg-green">已确认</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 系统公告 -->
+    <div class="layui-col-md6">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <i class="fa fa-bell"></i> 系统公告
+                <a href="javascript:;" style="float: right; color: #1E9FFF;">查看更多</a>
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-collapse" lay-accordion="">
+                    <div class="layui-colla-item">
+                        <h2 class="layui-colla-title">系统更新通知 (2023-06-15)</h2>
+                        <div class="layui-colla-content layui-show">
+                            <p>尊敬的用户，我们将于本周六凌晨2:00-4:00进行系统维护升级，届时系统将暂停服务。请提前做好相关工作安排，由此给您带来的不便，敬请谅解。</p>
+                        </div>
+                    </div>
+                    <div class="layui-colla-item">
+                        <h2 class="layui-colla-title">新增会员积分功能 (2023-06-10)</h2>
+                        <div class="layui-colla-content">
+                            <p>为了更好地服务会员，我们新增了会员积分功能。会员消费可累积积分，积分可用于兑换礼品或抵扣消费。详情请查看会员管理-积分规则。</p>
+                        </div>
+                    </div>
+                    <div class="layui-colla-item">
+                        <h2 class="layui-colla-title">端午节营业时间调整 (2023-06-05)</h2>
+                        <div class="layui-colla-content">
+                            <p>端午节期间（6月22日-6月24日）营业时间调整为10:00-20:00，请各位员工注意调整工作时间，提前安排好预约服务。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+<script>
+layui.use(['element', 'layer', 'util'], function(){
+    var element = layui.element;
+    var layer = layui.layer;
+    var util = layui.util;
+    var $ = layui.jquery;
+    
+    // 销售趋势图
+    var salesChart = echarts.init(document.getElementById('sales-chart'));
+    var salesOption = {
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['营业额', '预约数']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: '营业额',
+                type: 'line',
+                smooth: true,
+                data: [5200, 4900, 7000, 6500, 8500, 11000, 9500],
+                itemStyle: {
+                    color: '#1E9FFF'
+                }
+            },
+            {
+                name: '预约数',
+                type: 'line',
+                smooth: true,
+                data: [20, 18, 25, 22, 30, 40, 35],
+                itemStyle: {
+                    color: '#5FB878'
+                }
+            }
+        ]
+    };
+    salesChart.setOption(salesOption);
+    
+    // 服务分布图
+    var serviceChart = echarts.init(document.getElementById('service-chart'));
+    var serviceOption = {
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 10,
+            data: ['头部按摩', '全身SPA', '精油按摩', '足部按摩', '其他服务']
+        },
+        series: [
+            {
+                name: '服务分布',
+                type: 'pie',
+                radius: ['50%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '18',
+                        fontWeight: 'bold'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: [
+                    {value: 335, name: '头部按摩', itemStyle: {color: '#1E9FFF'}},
+                    {value: 310, name: '全身SPA', itemStyle: {color: '#5FB878'}},
+                    {value: 234, name: '精油按摩', itemStyle: {color: '#FFB800'}},
+                    {value: 135, name: '足部按摩', itemStyle: {color: '#FF5722'}},
+                    {value: 148, name: '其他服务', itemStyle: {color: '#01AAED'}}
+                ]
+            }
+        ]
+    };
+    serviceChart.setOption(serviceOption);
+    
+    // 窗口调整时重新渲染图表
+    window.addEventListener('resize', function() {
+        salesChart.resize();
+        serviceChart.resize();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}外卖业务 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}外卖业务{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">外卖订单列表</h6>
+        <a href="{{ url_for('delivery.add') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> 添加外卖订单
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="deliveryTable">
+                <thead>
+                    <tr>
+                        <th>订单号</th>
+                        <th>会员</th>
+                        <th>收货地址</th>
+                        <th>联系电话</th>
+                        <th>金额</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.member.name if order.member else '散客' }}</td>
+                        <td>{{ order.address }}</td>
+                        <td>{{ order.phone }}</td>
+                        <td>¥{{ order.total_amount }}</td>
+                        <td>
+                            {% if order.status == 'pending' %}
+                            <span class="badge bg-warning">待确认</span>
+                            {% elif order.status == 'confirmed' %}
+                            <span class="badge bg-info">已确认</span>
+                            {% elif order.status == 'completed' %}
+                            <span class="badge bg-success">已完成</span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="badge bg-danger">已取消</span>
+                            {% elif order.status == 'refunded' %}
+                            <span class="badge bg-secondary">已退款</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('delivery.view', id=order.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if order.status == 'pending' or order.status == 'confirmed' %}
+                                <a href="{{ url_for('delivery.edit', id=order.id) }}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
+                                {% if order.status == 'completed' and not order.payment %}
+                                <a href="{{ url_for('payment.add') }}?delivery_order_id={{ order.id }}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-credit-card"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">暂无外卖订单</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#deliveryTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/zh.json'
+            },
+            order: [[6, 'desc']]
+        });
+    });
+</script>
+{% endblock %}

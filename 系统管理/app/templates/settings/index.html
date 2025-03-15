@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}系统设置 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}系统设置{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">基本设置</h6>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="shop_name" class="form-label">{{ form.shop_name.label }}</label>
+                            {{ form.shop_name(class="form-control", id="shop_name") }}
+                            {% for error in form.shop_name.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="shop_phone" class="form-label">{{ form.shop_phone.label }}</label>
+                            {{ form.shop_phone(class="form-control", id="shop_phone") }}
+                            {% for error in form.shop_phone.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="shop_address" class="form-label">{{ form.shop_address.label }}</label>
+                        {{ form.shop_address(class="form-control", id="shop_address") }}
+                        {% for error in form.shop_address.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="business_hours" class="form-label">{{ form.business_hours.label }}</label>
+                            {{ form.business_hours(class="form-control", id="business_hours") }}
+                            {% for error in form.business_hours.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="points_rate" class="form-label">{{ form.points_rate.label }}</label>
+                            {{ form.points_rate(class="form-control", id="points_rate") }}
+                            {% for error in form.points_rate.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">1积分可抵扣多少元，例如：0.01表示100积分=1元</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="delivery_fee" class="form-label">{{ form.delivery_fee.label }}</label>
+                            {{ form.delivery_fee(class="form-control", id="delivery_fee") }}
+                            {% for error in form.delivery_fee.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="free_delivery_amount" class="form-label">{{ form.free_delivery_amount.label }}</label>
+                            {{ form.free_delivery_amount(class="form-control", id="free_delivery_amount") }}
+                            {% for error in form.free_delivery_amount.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="shop_announcement" class="form-label">{{ form.shop_announcement.label }}</label>
+                        {{ form.shop_announcement(class="form-control", id="shop_announcement", rows="3") }}
+                        {% for error in form.shop_announcement.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">系统信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>系统版本：</strong> v1.0.0</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>数据库版本：</strong> SQLite 3</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>上次备份时间：</strong> {{ last_backup_time.strftime('%Y-%m-%d %H:%M') if last_backup_time else '从未备份' }}</p>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('settings.backup_database') }}" class="btn btn-success">
+                        <i class="fas fa-database"></i> 备份数据库
+                    </a>
+                    <a href="{{ url_for('settings.clear_cache') }}" class="btn btn-warning">
+                        <i class="fas fa-broom"></i> 清除缓存
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">系统统计</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>会员总数：</strong> {{ stats.member_count }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>员工总数：</strong> {{ stats.staff_count }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>服务项目数：</strong> {{ stats.service_count }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>产品数量：</strong> {{ stats.product_count }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>预约总数：</strong> {{ stats.appointment_count }}</p>
+                </div>
+                <div class="mb-3">
+                    <p><strong>外卖订单数：</strong> {{ stats.delivery_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

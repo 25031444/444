@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}预约日历 - 头疗SPA管理系统{% endblock %}
+
+{% block header %}预约日历{% endblock %}
+
+{% block styles %}
+<style>
+    .calendar-day {
+        min-height: 120px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    .calendar-day-header {
+        background-color: #e9ecef;
+        padding: 5px;
+        text-align: center;
+        font-weight: bold;
+    }
+    .calendar-day-content {
+        padding: 5px;
+        overflow-y: auto;
+        max-height: 300px;
+    }
+    .appointment-item {
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 3px;
+        font-size: 0.8rem;
+    }
+    .appointment-item.pending {
+        background-color: #fff3cd;
+        border-left: 3px solid #ffc107;
+    }
+    .appointment-item.confirmed {
+        background-color: #d1ecf1;
+        border-left: 3px solid #17a2b8;
+    }
+    .appointment-item.completed {
+        background-color: #d4edda;
+        border-left: 3px solid #28a745;
+    }
+    .appointment-item.cancelled {
+        background-color: #f8d7da;
+        border-left: 3px solid #dc3545;
+    }
+    .today {
+        background-color: #e8f4ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">预约日历</h6>
+        <div>
+            <a href="{{ url_for('appointment.calendar', date=prev_week) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-chevron-left"></i> 上一周
+            </a>
+            <a href="{{ url_for('appointment.calendar', date=today) }}" class="btn btn-outline-primary btn-sm mx-2">
+                今天
+            </a>
+            <a href="{{ url_for('appointment.calendar', date=next_week) }}" class="btn btn-outline-secondary btn-sm">
+                下一周 <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="{{ url_for('appointment.add') }}" class="btn btn-primary btn-sm ms-3">
+                <i class="fas fa-plus"></i> 添加预约
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            {% for date in dates %}
+            <div class="col">
+                <div class="calendar-day-header">
+                    {{ date.strftime('%m-%d') }}
+                    <br>
+                    <small>{{ ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][date.weekday()] }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="row">
+            {% for date in dates %}
+            <div class="col">
+                <div class="calendar-day {% if date.strftime('%Y-%m-%d') == today %}today{% endif %}">
+                    <div class="calendar-day-content">
+                        {% for appointment in appointments_by_date[date] %}
+                        <a href="{{ url_for('appointment.view', id=appointment.id) }}" class="text-decoration-none">
+                            <div class="appointment-item {{ appointment.status }}">
+                                <div><strong>{{ appointment.appointment_time.strftime('%H:%M') }}</strong></div>
+                                <div>{{ appointment.service.name if appointment.service else '未指定' }}</div>
+                                <div>{{ appointment.member.name if appointment.member else '散客' }}</div>
+                                <div>
+                                    {% if appointment.status == 'pending' %}
+                                    <span class="badge bg-warning">待确认</span>
+                                    {% elif appointment.status == 'confirmed' %}
+                                    <span class="badge bg-info">已确认</span>
+                                    {% elif appointment.status == 'completed' %}
+                                    <span class="badge bg-success">已完成</span>
+                                    {% elif appointment.status == 'cancelled' %}
+                                    <span class="badge bg-danger">已取消</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                        {% else %}
+                        <div class="text-center text-muted py-3">
+                            <small>暂无预约</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

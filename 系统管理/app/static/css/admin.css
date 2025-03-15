@@ -1,0 +1,311 @@
+/* 全局样式 */
+body {
+    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+/* 顶部导航栏 */
+.layui-header {
+    background-color: #393D49;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+    height: 50px;
+    line-height: 50px;
+}
+
+.layui-header .layui-nav {
+    background-color: transparent;
+    height: 50px;
+    padding: 0;
+}
+
+.layui-header .layui-nav .layui-nav-item {
+    height: 50px;
+    line-height: 50px;
+}
+
+.layui-header .layui-nav .layui-nav-item a {
+    color: rgba(255,255,255,.8);
+    height: 50px;
+    line-height: 50px;
+}
+
+.layui-header .layui-nav .layui-nav-item a:hover {
+    color: #ffffff;
+}
+
+.layui-header .layui-nav .layui-this:after, 
+.layui-header .layui-nav-bar {
+    background-color: #5FB878;
+}
+
+/* Logo 样式 */
+.layui-logo {
+    width: 200px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #23262E;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.15);
+    overflow: hidden;
+    transition: all .3s;
+}
+
+.logo-text {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.logo-mini {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 左侧菜单 */
+.layui-side {
+    width: 200px;
+    background-color: #23262E;
+    box-shadow: 1px 0 2px 0 rgba(0,0,0,.05);
+    transition: all .3s;
+}
+
+.layui-side .layui-nav {
+    background-color: transparent;
+    width: 200px;
+}
+
+.layui-side .layui-nav .layui-nav-item > a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: rgba(255,255,255,.7);
+}
+
+.layui-side .layui-nav .layui-nav-item > a:hover {
+    background-color: rgba(255,255,255,.03);
+    color: #ffffff;
+}
+
+.layui-side .layui-nav .layui-nav-itemed > a {
+    color: #ffffff !important;
+}
+
+.layui-side .layui-nav .layui-nav-item > a i {
+    margin-right: 10px;
+    font-size: 16px;
+    width: 16px;
+    text-align: center;
+}
+
+.layui-side .layui-nav .layui-nav-child {
+    background-color: rgba(0,0,0,.2) !important;
+}
+
+.layui-side .layui-nav .layui-nav-child a {
+    padding-left: 45px;
+    color: rgba(255,255,255,.7);
+}
+
+.layui-side .layui-nav .layui-nav-child a:hover {
+    color: #ffffff;
+}
+
+.layui-side .layui-nav .layui-nav-child a i {
+    margin-right: 10px;
+    font-size: 14px;
+    width: 14px;
+    text-align: center;
+}
+
+.layui-side .layui-nav .layui-nav-more {
+    right: 15px;
+}
+
+.layui-side .layui-nav .layui-nav-itemed .layui-nav-more {
+    margin-top: -9px;
+    border-color: transparent transparent #ffffff;
+}
+
+/* 主体内容区域 */
+.layui-body {
+    left: 200px;
+    background-color: #f5f5f5;
+    transition: all .3s;
+    padding: 15px 0 0 0;
+    overflow: auto;
+}
+
+/* 面包屑导航 */
+.breadcrumb-container {
+    padding: 0 15px 15px 15px;
+    font-size: 14px;
+}
+
+/* 内容区域 */
+.layui-fluid {
+    padding: 0 15px 15px 15px;
+}
+
+/* 底部 */
+.layui-footer {
+    left: 200px;
+    background-color: #fff;
+    color: #666;
+    height: 44px;
+    line-height: 44px;
+    text-align: center;
+    border-top: 1px solid #f6f6f6;
+    box-shadow: 0 -1px 2px 0 rgba(0,0,0,.05);
+    transition: all .3s;
+}
+
+/* 卡片样式 */
+.layui-card {
+    margin-bottom: 15px;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+}
+
+.layui-card-header {
+    height: 42px;
+    line-height: 42px;
+    padding: 0 15px;
+    border-bottom: 1px solid #f6f6f6;
+    color: #333;
+    border-radius: 2px 2px 0 0;
+    font-size: 14px;
+}
+
+.layui-card-header i {
+    margin-right: 8px;
+}
+
+.layui-card-body {
+    padding: 15px;
+}
+
+/* 数据卡片 */
+.data-card {
+    height: 100px;
+    border-radius: 2px;
+    background-color: #fff;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+    position: relative;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.data-card-icon {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 15px;
+    font-size: 24px;
+    color: #fff;
+}
+
+.data-card-info {
+    flex: 1;
+}
+
+.data-card-title {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.data-card-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.data-card-blue .data-card-icon {
+    background-color: #1E9FFF;
+}
+
+.data-card-green .data-card-icon {
+    background-color: #5FB878;
+}
+
+.data-card-orange .data-card-icon {
+    background-color: #FFB800;
+}
+
+.data-card-red .data-card-icon {
+    background-color: #FF5722;
+}
+
+/* 表格样式 */
+.layui-table {
+    margin-top: 0;
+}
+
+.layui-table-view {
+    border: none;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+}
+
+.layui-table-header {
+    background-color: #f8f8f8;
+}
+
+/* 按钮样式 */
+.layui-btn {
+    border-radius: 2px;
+}
+
+.layui-btn-primary {
+    border-color: #ddd;
+}
+
+.layui-btn-primary:hover {
+    border-color: #5FB878;
+    color: #5FB878;
+}
+
+/* 表单样式 */
+.layui-form-label {
+    width: 100px;
+}
+
+.layui-input-block {
+    margin-left: 130px;
+}
+
+.layui-form-item {
+    margin-bottom: 20px;
+}
+
+/* 警告框 */
+.layui-alert {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 2px;
+    color: #fff;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 768px) {
+    .layui-side {
+        transform: translate3d(-200px, 0, 0);
+    }
+    
+    .layui-body, .layui-footer {
+        left: 0;
+    }
+    
+    .layui-side-shrink .layui-side {
+        transform: translate3d(0, 0, 0);
+    }
+    
+    .layui-side-shrink .layui-body, 
+    .layui-side-shrink .layui-footer {
+        left: 200px;
+    }
+}

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}管理系统{% endblock %}</title>
+    
+    <!-- 引入 Layui 和自定义 CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='layui/css/layui.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='layui/css/laydate.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='layui/css/layer.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='layui/css/code.css') }}">
+    {% block styles %}{% endblock %}
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 顶部导航栏 -->
+        <div class="layui-header">
+            <!-- 左侧 logo -->
+            <div class="layui-logo">
+                <span class="logo-text">管理系统</span>
+            </div>
+            
+            <!-- 顶部菜单 -->
+            <ul class="layui-nav layui-layout-left">
+                <li class="layui-nav-item" lay-unselect>
+                    <a href="javascript:;" layadmin-event="flexible" title="侧边伸缩">
+                        <i class="fa fa-bars"></i>
+                    </a>
+                </li>
+                <li class="layui-nav-item" lay-unselect>
+                    <a href="javascript:;" layadmin-event="refresh" title="刷新">
+                        <i class="fa fa-refresh"></i>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- 右侧用户信息 -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item layui-hide-xs">
+                    <a href="javascript:;" class="fullscreen-btn" title="全屏显示">
+                        <i class="fa fa-arrows-alt"></i>
+                    </a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="{{ url_for('static', filename='layui/images/avatar.jpg') }}" class="layui-nav-img">
+                        {% if current_user.is_authenticated %}
+                            {{ current_user.username }}
+                        {% else %}
+                            游客
+                        {% endif %}
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;"><i class="fa fa-user-o"></i> 个人资料</a></dd>
+                        <dd><a href="javascript:;"><i class="fa fa-gear"></i> 设置</a></dd>
+                        <dd>
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('auth.logout') }}"><i class="fa fa-sign-out"></i> 退出登录</a>
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}"><i class="fa fa-sign-in"></i> 登录</a>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 左侧导航菜单 -->
+        <div class="layui-side">
+            <div class="layui-side-scroll">
+                <ul class="layui-nav layui-nav-tree" lay-filter="admin-side-nav" lay-shrink="all">
+                    <li class="layui-nav-item">
+                        <a href="{{ url_for('main.index') }}">
+                            <i class="fa fa-home"></i>
+                            <span>首页</span>
+                        </a>
+                    </li>
+                    
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a href="javascript:;">
+                            <i class="fa fa-users"></i>
+                            <span>会员管理</span>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;"><i class="fa fa-list"></i> 会员列表</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-star"></i> 会员级别</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-credit-card"></i> 充值记录</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-gift"></i> 积分管理</a></dd>
+                        </dl>
+                    </li>
+                    
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a href="javascript:;">
+                            <i class="fa fa-briefcase"></i>
+                            <span>业务管理</span>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="{{ url_for('business.services') }}"><i class="fa fa-list-alt"></i> 服务管理</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-tags"></i> 服务类型</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-shopping-bag"></i> 产品管理</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-calendar"></i> 预约管理</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-truck"></i> 配送管理</a></dd>
+                        </dl>
+                    </li>
+                    
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a href="javascript:;">
+                            <i class="fa fa-money"></i>
+                            <span>财务管理</span>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;"><i class="fa fa-credit-card"></i> 支付记录</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-retweet"></i> 充值记录</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-rmb"></i> 消费记录</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-bar-chart"></i> 财务报表</a></dd>
+                        </dl>
+                    </li>
+                    
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a href="javascript:;">
+                            <i class="fa fa-bar-chart"></i>
+                            <span>统计分析</span>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;"><i class="fa fa-line-chart"></i> 营业统计</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-pie-chart"></i> 服务分析</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-user-plus"></i> 会员分析</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-calendar-check-o"></i> 预约分析</a></dd>
+                        </dl>
+                    </li>
+                    
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a href="javascript:;">
+                            <i class="fa fa-cogs"></i>
+                            <span>系统管理</span>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd><a href="javascript:;"><i class="fa fa-user-plus"></i> 员工管理</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-wrench"></i> 系统设置</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-history"></i> 活动日志</a></dd>
+                            <dd><a href="javascript:;"><i class="fa fa-database"></i> 数据备份</a></dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 主体内容区域 -->
+        <div class="layui-body">
+            <!-- 面包屑导航 -->
+            <div class="layui-breadcrumb breadcrumb-container">
+                <a href="{{ url_for('main.index') }}">首页</a>
+                {% block breadcrumb %}{% endblock %}
+            </div>
+            
+            <!-- 内容区域 -->
+            <div class="layui-fluid">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="layui-alert {% if category == 'error' %}layui-bg-red{% else %}layui-bg-green{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+        
+        <!-- 底部 -->
+        <div class="layui-footer">
+            Copyright © 2023 头疗SPA管理系统 All Rights Reserved
+        </div>
+    </div>
+    
+    <!-- 引入 JS -->
+    <script src="{{ url_for('static', filename='layui/layui.js') }}"></script>
+    <script>
+    layui.use(['element', 'layer', 'util'], function(){
+        var element = layui.element;
+        var layer = layui.layer;
+        var util = layui.util;
+        var $ = layui.jquery;
+        
+        // 侧边栏伸缩
+        $('[layadmin-event="flexible"]').on('click', function(){
+            var side = $('.layui-side');
+            var body = $('.layui-body');
+            var footer = $('.layui-footer');
+            var sideWidth = side.width();
+            
+            if(sideWidth === 200) {
+                side.width(60);
+                body.css('left', '60px');
+                footer.css('left', '60px');
+                $('.layui-side .layui-nav-item span, .layui-side .layui-nav-child').hide();
+                $('.layui-logo').html('<span class="logo-mini">SPA</span>');
+            } else {
+                side.width(200);
+                body.css('left', '200px');
+                footer.css('left', '200px');
+                $('.layui-side .layui-nav-item span, .layui-side .layui-nav-child').show();
+                $('.layui-logo').html('<span class="logo-text">头疗SPA管理系统</span>');
+            }
+        });
+        
+        // 刷新页面
+        $('[layadmin-event="refresh"]').on('click', function(){
+            location.reload();
+        });
+        
+        // 全屏切换
+        $('.fullscreen-btn').on('click', function(){
+            var fullscreenElement = 
+                document.fullscreenElement ||
+                document.mozFullScreenElement ||
+                document.webkitFullscreenElement ||
+                document.msFullscreenElement;
+            
+            if (fullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            } else {
+                var element = document.documentElement;
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.mozRequestFullScreen) {
+                    element.mozRequestFullScreen();
+                } else if (element.webkitRequestFullscreen) {
+                    element.webkitRequestFullscreen();
+                } else if (element.msRequestFullscreen) {
+                    element.msRequestFullscreen();
+                }
+            }
+        });
+    });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
